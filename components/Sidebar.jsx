@@ -59,10 +59,6 @@ export default function Sidebar() {
           <DotsHorizontalIcon className="h-5 xl:ml-8 hidden xl:inline" />
         </div>
       </>
-
-      <button className="bg-blue-400 text-white rounded-full w-36 h-12 font-bold shadow-md hover:brightness-95 text-lg hidden xl:inline">
-        Sign in
-      </button>
     </div>
   );
 }
