@@ -26,7 +26,7 @@ export default function Sidebar() {
 
       {/* Menu */}
 
-      <div className="mt-4 mb-2.5 xl:items-start">
+      <div className="mt-4 mb-2.5 xl:items-start ">
         <SidebarMenuItem text="Home" Icon={HomeIcon} active />
         <SidebarMenuItem text="Explore" Icon={HashtagIcon} />
         <SidebarMenuItem text="Notifications" Icon={BellIcon} />
@@ -45,7 +45,7 @@ export default function Sidebar() {
 
         {/* Mini-Profile */}
 
-        <div className="hoverEffect text-gray-700 flex items-center justify-center xl:justify-start mt-auto">
+        <div className="hoverEffect text-gray-700 flex items-center justify-center xl:justify-start mt-auto ">
           <img
             src="https://images.unsplash.com/photo-1547005327-ef75a6961556?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8b2NlYW58ZW58MHwyfDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60"
             alt="user-img"
