@@ -24,9 +24,9 @@ export default function Post({ post }) {
         <div className="flex items-center justify-between">
           {/* post user info */}
           <div className="flex items-center space-x-1 whitespace-nowrap">
-            <h4 className="font-bold text-[15px] sm:text-[16px] hover:underline"></h4>
-            <span className="text-sm sm:text-[15px]"></span>
-            <span className="text-sm sm:text-[15px] hover:underline"></span>
+            <h4 className="font-bold text-[15px] sm:text-[16px] hover:underline">{post.name}</h4>
+            <span className="text-sm sm:text-[15px]">{post.username}</span>
+            <span className="text-sm sm:text-[15px] hover:underline">{post.timestamp}</span>
           </div>
 
           {/* dot icon */}
