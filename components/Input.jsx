@@ -3,12 +3,20 @@ import {
   PhotographIcon,
   XIcon,
 } from "@heroicons/react/outline";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Input() {
+  const {data: session} = useSession()
+  console.log(session)
   return (
-    <div className="flex  border-b border-gray-200 p-3 space-x-3">
+
+    <>
+    {session && (
+      <div className="flex  border-b border-gray-200 p-3 space-x-3">
       <img
-        src="https://images.unsplash.com/photo-1547005327-ef75a6961556?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8b2NlYW58ZW58MHwyfDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60"
+        // src="https://images.unsplash.com/photo-1547005327-ef75a6961556?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8b2NlYW58ZW58MHwyfDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60"
+        onClick={signOut}
+        src={session.user.image}
         alt="user-img"
         className="h-11 w-11 rounded-full cursor-pointer hover:brightness-95"
       />
@@ -31,5 +39,13 @@ export default function Input() {
         </div>
       </div>
     </div>
+
+
+
+    )}
+    
+    
+    </>
+    
   );
 }
