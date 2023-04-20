@@ -16,8 +16,9 @@ import {
   setDoc,
   deleteDoc,
 } from "firebase/firestore";
-import { db } from "@/firebase";
+import { db, storage } from "@/firebase";
 import { useEffect, useState } from "react";
+import { deleteObject, ref } from "firebase/storage";
 
 export default function Post({ post }) {
   const { data: session } = useSession();
@@ -50,6 +51,16 @@ export default function Post({ post }) {
       signIn();
     }
   }
+
+  async function deletePost() {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      deleteDoc(doc(db, "posts", post.id));
+      if (post.data().image) {
+        deleteObject(ref(storage, `posts/${post.id}/image`));
+      }
+    }
+  }
+
   return (
     <div className="flex p-3 cursor-pointer border-b border-gray-200">
       {/* user image */}
@@ -95,11 +106,13 @@ export default function Post({ post }) {
         <div className="flex justify-between text-gray-500 p-2">
           <div className="flex items-center select-none">
             <ChatIcon className="h-9 w-9 hoverEffect p-2 hover:text-sky-500 hover:bg-sky-100" />
-
-            <span className="text-sm">4</span>
           </div>
-
-          <TrashIcon className="h-9 w-9 hoverEffect p-2 hover:text-red-600 hover:bg-red-100" />
+          {session?.user.uid === post?.data().id && (
+            <TrashIcon
+              onClick={deletePost}
+              className="h-9 w-9 hoverEffect p-2 hover:text-red-600 hover:bg-red-100"
+            />
+          )}
 
           <div className="flex items-center">
             {hasLiked ? (
