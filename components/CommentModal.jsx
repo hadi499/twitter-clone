@@ -26,6 +26,7 @@ export default function CommentModal() {
   const [input, setInput] = useState("");
   const router = useRouter();
   const { data: session } = useSession();
+  console.log(session)
 
   useEffect(() => {
     onSnapshot(doc(db, "posts", postId), (snapshot) => {
@@ -33,7 +34,20 @@ export default function CommentModal() {
     });
   }, [postId, db]);
 
-  async function sendComment() {}
+  async function sendComment() {
+    await addDoc(collection(db, "posts", postId, "comments"), {
+      comment: input,
+      name: session.user.name,
+      username: session.user.username,
+      userImg: session.user.image,
+      timestamp: serverTimestamp(),
+      userId: session.user.uid,
+    });
+
+    setOpen(false);
+    setInput("");
+    router.push(`/posts/${postId}`);
+  }
 
   return (
     <div>
@@ -75,7 +89,7 @@ export default function CommentModal() {
 
             <div className="flex  p-3 space-x-3">
               <img
-                src={session.user.image}
+                src={post?.data()?.userImg}
                 alt="user-img"
                 className="h-11 w-11 rounded-full cursor-pointer hover:brightness-95"
               />
