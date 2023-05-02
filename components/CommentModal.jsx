@@ -17,16 +17,14 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import Moment from "react-moment";
-import { useSession } from "next-auth/react";
-
+import { userState } from "../atom/userAtom";
 export default function CommentModal() {
   const [open, setOpen] = useRecoilState(modalState);
   const [postId] = useRecoilState(postIdState);
+  const [currentUser] = useRecoilState(userState);
   const [post, setPost] = useState({});
   const [input, setInput] = useState("");
   const router = useRouter();
-  const { data: session } = useSession();
-  console.log(session)
 
   useEffect(() => {
     onSnapshot(doc(db, "posts", postId), (snapshot) => {
@@ -37,11 +35,11 @@ export default function CommentModal() {
   async function sendComment() {
     await addDoc(collection(db, "posts", postId, "comments"), {
       comment: input,
-      name: session.user.name,
-      username: session.user.username,
-      userImg: session.user.image,
+      name: currentUser.name,
+      username: currentUser.username,
+      userImg: currentUser.userImg,
       timestamp: serverTimestamp(),
-      userId: session.user.uid,
+      userId: currentUser.uid,
     });
 
     setOpen(false);
@@ -89,7 +87,7 @@ export default function CommentModal() {
 
             <div className="flex  p-3 space-x-3">
               <img
-                src={post?.data()?.userImg}
+                src={currentUser.userImg}
                 alt="user-img"
                 className="h-11 w-11 rounded-full cursor-pointer hover:brightness-95"
               />

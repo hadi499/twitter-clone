@@ -3,8 +3,6 @@ import {
   PhotographIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import { useSession, signOut } from "next-auth/react";
-import { useRef, useState } from "react";
 import {
   addDoc,
   collection,
@@ -12,27 +10,32 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { db, storage } from "../firebase";
-import { getDownloadURL, uploadString, ref } from "firebase/storage";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 
+import { useState, useRef } from "react";
+import { db, storage } from "../firebase";
+import { useRecoilState } from "recoil";
+import { userState } from "../atom/userAtom";
+import { signOut, getAuth } from "firebase/auth";
 export default function Input() {
-  const { data: session } = useSession();
   const [input, setInput] = useState("");
-  const filePickerRef = useRef(null);
+  const [currentUser, setCurrentUser] = useRecoilState(userState);
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const filePickerRef = useRef(null);
+  const auth = getAuth();
 
   const sendPost = async () => {
     if (loading) return;
     setLoading(true);
 
     const docRef = await addDoc(collection(db, "posts"), {
-      id: session.user.uid,
+      id: currentUser.uid,
       text: input,
-      userImg: session.user.image,
+      userImg: currentUser.userImg,
       timestamp: serverTimestamp(),
-      name: session.user.name,
-      username: session.user.username,
+      name: currentUser.name,
+      username: currentUser.username,
     });
 
     const imageRef = ref(storage, `posts/${docRef.id}/image`);
@@ -40,11 +43,12 @@ export default function Input() {
     if (selectedFile) {
       await uploadString(imageRef, selectedFile, "data_url").then(async () => {
         const downloadURL = await getDownloadURL(imageRef);
-        updateDoc(doc(db, "posts", docRef.id), {
+        await updateDoc(doc(db, "posts", docRef.id), {
           image: downloadURL,
         });
       });
     }
+
     setInput("");
     setSelectedFile(null);
     setLoading(false);
@@ -55,24 +59,29 @@ export default function Input() {
     if (e.target.files[0]) {
       reader.readAsDataURL(e.target.files[0]);
     }
+
     reader.onload = (readerEvent) => {
-      console.log(readerEvent.target.result);
       setSelectedFile(readerEvent.target.result);
     };
   };
+
+  function onSignOut() {
+    signOut(auth);
+    setCurrentUser(null);
+  }
+
   return (
     <>
-      {session && (
+      {currentUser && (
         <div className="flex  border-b border-gray-200 p-3 space-x-3">
           <img
-            // src="https://images.unsplash.com/photo-1547005327-ef75a6961556?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8b2NlYW58ZW58MHwyfDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60"
-            onClick={signOut}
-            src={session.user.image}
+            onClick={onSignOut}
+            src={currentUser?.userImg}
             alt="user-img"
             className="h-11 w-11 rounded-full cursor-pointer hover:brightness-95"
           />
           <div className="w-full divide-y divide-gray-200">
-            <div>
+            <div className="">
               <textarea
                 className="w-full border-none focus:ring-0 text-lg placeholder-gray-700 tracking-wide min-h-[50px] text-gray-700"
                 rows="2"
@@ -85,12 +94,11 @@ export default function Input() {
               <div className="relative">
                 <XIcon
                   onClick={() => setSelectedFile(null)}
-                  className="border h-5 text-black bg-white absolute cursor-pointer shadow-md border-white m-1 rounded-full right-0"
+                  className="border h-7 text-black absolute cursor-pointer shadow-md border-white m-1 rounded-full"
                 />
                 <img
                   src={selectedFile}
                   className={`${loading && "animate-pulse"}`}
-                  alt=""
                 />
               </div>
             )}
@@ -98,7 +106,10 @@ export default function Input() {
               {!loading && (
                 <>
                   <div className="flex">
-                    <div onClick={() => filePickerRef.current.click()}>
+                    <div
+                      className=""
+                      onClick={() => filePickerRef.current.click()}
+                    >
                       <PhotographIcon className="h-10 w-10 hoverEffect p-2 text-sky-500 hover:bg-sky-100" />
                       <input
                         type="file"
